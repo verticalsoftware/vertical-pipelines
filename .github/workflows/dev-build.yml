@@ -27,4 +27,4 @@ jobs:
       - name: Set build label
         run: echo "DEVLABEL=$(date +'%Y%m%d')" >> $GITHUB_ENV
       - name: Build pre-release packages
-        run: dotnet pack -c Release --no-restore -p:VersionSuffix=dev.${{ env.DEVLABEL }}.${ GITHUB_RUN_ID }
+        run: dotnet pack -c Release --no-restore -p:VersionSuffix=dev.${{ env.DEVLABEL }}.${{ github.run_number }}
