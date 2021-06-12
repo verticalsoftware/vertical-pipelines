@@ -6,7 +6,7 @@ using Vertical.Pipelines;
 
 namespace PipelinesExample.Services
 {
-    public class EmailService : IPipelineTask<CreateUserContext>
+    public class EmailService
     {
         private readonly ILogger<EmailService> logger;
 
@@ -15,17 +15,17 @@ namespace PipelinesExample.Services
             this.logger = logger;
         }
 
-        /// <inheritdoc />
-        public async Task InvokeAsync(CreateUserContext context, 
-            PipelineDelegate<CreateUserContext> next, 
+        public Task SendMessageAsync(
+            string fromAddress,
+            string toAddress,
+            string subject,
+            string body,
             CancellationToken cancellationToken)
         {
-            // Here we'll defer sending out the email until we know
-            // everything else is complete
-            await next.InvokeAsync(context, cancellationToken);
-            
-            // "Send" the email out
-            // smtp.SendEmail(...)
+            // Example service
+            logger.LogInformation("Sent message to {EmailAddress}", toAddress);
+
+            return Task.CompletedTask;
         }
     }
 }

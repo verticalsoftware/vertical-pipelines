@@ -6,7 +6,7 @@ using Vertical.Pipelines;
 
 namespace PipelinesExample.Services
 {
-    public class CloudStorageClient : IPipelineTask<CreateUserContext>
+    public class CloudStorageClient 
     {
         private readonly ILogger<CloudStorageClient> logger;
 
@@ -15,14 +15,24 @@ namespace PipelinesExample.Services
             this.logger = logger;
         }
 
-        /// <inheritdoc />
-        public async Task InvokeAsync(CreateUserContext context, 
-            PipelineDelegate<CreateUserContext> next, 
+        public Task ProvisionAccountAsync(string accountId, 
             CancellationToken cancellationToken)
         {
-            logger.LogInformation("Provisioned storage account for {EmailAddress}", context.Model.EmailAddress);
+            // Example service implementation
+            
+            logger.LogInformation("Provisioned storage account for {AccountId}", accountId);
 
-            await next.InvokeAsync(context, cancellationToken);
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteAccountAsync(string accountId,
+            CancellationToken cancellationToken)
+        {
+            // Example service implementation
+            
+            logger.LogInformation("Deleted storage account for {AccountId}", accountId);
+
+            return Task.CompletedTask;
         }
     }
 }
