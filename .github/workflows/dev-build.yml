@@ -24,3 +24,7 @@ jobs:
         run: dotnet build -c Release --no-restore
       - name: Test
         run: dotnet test --no-restore --verbosity normal
+      - name: Set build label
+        run: echo "DEVLABEL=$(date +'%Y-%m%d')" >> $GITHUB_ENV
+      - name: Build pre-release packages
+        run: dotnet pack -c Release --no-restore -p:VersionSuffix=${{ env.DEVLABEL }}-DEV
