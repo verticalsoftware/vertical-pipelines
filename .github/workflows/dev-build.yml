@@ -29,4 +29,4 @@ jobs:
       - name: Build pre-release packages
         run: dotnet pack -c Release --no-restore -p:VersionSuffix=dev.${{ env.DEVLABEL }}.${{ github.run_number }}
       - name: Publish packages to NuGet
-        run: dotnet nuget push src/bin/Release/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_ORG_PUSH_KEY }}
+        run: dotnet nuget push src/bin/Release/*[^.symbols].nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_ORG_PUSH_KEY }}
