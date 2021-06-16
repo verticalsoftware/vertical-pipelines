@@ -76,4 +76,4 @@ There is a reference application in the [examples](https://github.com/verticalso
 
 ## Issues or requests
 
-What a tiny library... making this README took more effort than the the code. What else could we want this to do? I'm sure you can think of something, in which case, create an issue [here](https://github.com/verticalsoftware/vertical-pipelines/issues).
+What a tiny library... making this README took more effort than the code. What else could we want this to do? I'm sure you can think of something, in which case, create an issue [here](https://github.com/verticalsoftware/vertical-pipelines/issues).
