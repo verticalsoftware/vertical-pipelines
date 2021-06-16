@@ -2,6 +2,13 @@
 
 Generic "middleware" pipelines.
 
+![.net](https://img.shields.io/badge/Frameworks-.netstandard21+net50-purple)
+![GitHub](https://img.shields.io/github/license/verticalsoftware/vertical-pipelines)
+![Package info](https://img.shields.io/nuget/v/vertical-pipelines.svg)
+
+[![Dev build](https://github.com/verticalsoftware/vertical-pipelines/actions/workflows/dev-build.yml/badge.svg)](https://github.com/verticalsoftware/vertical-pipelines/actions/workflows/dev-build.yml)
+[![codecov](https://codecov.io/gh/verticalsoftware/vertical-pipelines/branch/dev/graph/badge.svg?token=4RNB0XF988)](https://codecov.io/gh/verticalsoftware/vertical-pipelines)
+
 ## Motivation
 
 Aspnetcore provides a middleware pipeline to handle HTTP requests. This micro library defines some types that enable you to construct logic pipelines of your own, outside of aspnetcore and `HttpContext`, and control when they are invoked and the contextual data type that is available to the pipeline components.
