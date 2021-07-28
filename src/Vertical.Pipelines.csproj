@@ -4,9 +4,9 @@
     <TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <Title>vertical-pipelines</Title>
-    <Description>Overly simple task pipeline similar to the aspnetcore middleware paradigm.</Description>
+    <Description>Overly simple task pipeline similar to the aspnetcore middleware.</Description>
     <Authors>Vertical Software Contributors</Authors>
-    <VersionPrefix>1.1.0</VersionPrefix>
+    <VersionPrefix>1.2.0</VersionPrefix>
     <PackageId>vertical-pipelines</PackageId>
     <PackageTags>infrastructure;middleware;utilities;framework</PackageTags>
     <PackageProjectUrl>https://github.com/verticalsoftware/vertical-pipelines</PackageProjectUrl>
@@ -17,6 +17,9 @@
     <PackageIcon>icon.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolsPackageFormat>snupkg</SymbolsPackageFormat>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\assets\vertical-software.snk</AssemblyOriginatorKeyFile>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
   </PropertyGroup>
   
   <ItemGroup>
