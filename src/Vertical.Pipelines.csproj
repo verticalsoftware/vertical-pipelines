@@ -11,7 +11,7 @@
     <PackageTags>infrastructure;middleware;utilities;framework</PackageTags>
     <PackageProjectUrl>https://github.com/verticalsoftware/vertical-pipelines</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <PackageIcon>icon.png</PackageIcon>
