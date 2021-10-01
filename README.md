@@ -31,7 +31,7 @@ public class ErrorHandler : IPipelineTask<Context>
             // Call rest of pipeline
             await next.InokeAsync(context, cancellationToken);
         }
-        catch (Excepotion exception)
+        catch (Exception exception)
         {
             logger.LogError(exception, "An error occurred");
             throw;
