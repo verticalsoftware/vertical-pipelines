@@ -6,27 +6,27 @@ using Xunit;
 
 namespace Vertical.Pipelines.Test
 {
-    public class Invoker<TContext, TResult>
-    {
-        private readonly object _middleware;
-
-        public Invoker(object middleware)
-        {
-            _middleware = middleware;
-        }
-
-        public TResult Invoke(TContext context, IServiceProvider serviceProvider)
-        {
-            return default!;
-        }
-    }
-    
     public class Tests
     {
         [Fact]
         public async Task ScrewAround()
         {
             var context = new TestContext();
+            var services = Substitute.For<IServiceProvider>();
+            var dataService = Substitute.For<IDataService>();
+            dataService.GetData("id").Returns("the-data");
+            services.GetService(typeof(IDataService)).Returns(dataService);
+            var builder = new PipelineBuilder<TestContext>();
+
+            builder.UseMiddleware(typeof(MiddlewareA), services.GetService(typeof(IDataService)));
+            builder.UseMiddleware(typeof(MiddlewareB));
+
+            var pipeline = builder.Build();
+
+            await pipeline(context, services);
+
+            context.Count.ShouldBe(2);
+            context.Data.ShouldBe("the-data");
         }
     }
 }

@@ -1,55 +1,48 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Vertical.Pipelines
 {
     public class MiddlewareA
     {
-        private readonly PipelineDelegate<TestContext, Task> _next;
+        private readonly PipelineDelegate<TestContext> _next;
+        private readonly IDataService _dataService;
 
-        public MiddlewareA(PipelineDelegate<TestContext, Task> next)
+        public MiddlewareA(PipelineDelegate<TestContext> next, IDataService dataService)
         {
             _next = next;
+            _dataService = dataService;
         }
 
-        public async Task InvokeAsync(TestContext context)
+        public Task InvokeAsync(TestContext context, IServiceProvider services)
         {
             context.Count++;
-
-            await _next(context);
-        }   
-    }
-
-    public class MiddlewareB
-    {
-        private readonly PipelineDelegate<TestContext, Task> _next;
-
-        public MiddlewareB(PipelineDelegate<TestContext, Task> next)
-        {
-            _next = next;
+            
+            return _next(context, services);
         }
-
-        public async Task InvokeAsync(TestContext context)
-        {
-            context.Count++;
-
-            await _next(context);
-        }  
     }
     
-    public class MiddlewareC
+    public class MiddlewareB
     {
-        private readonly PipelineDelegate<TestContext, Task> _next;
+        private readonly PipelineDelegate<TestContext> _next;
 
-        public MiddlewareC(PipelineDelegate<TestContext, Task> next)
+        public MiddlewareB(PipelineDelegate<TestContext> next)
         {
             _next = next;
         }
 
-        public async Task InvokeAsync(TestContext context)
+        public Task InvokeAsync(TestContext context, IServiceProvider services, IDataService dataService)
         {
             context.Count++;
 
-            await _next(context);
-        }  
+            context.Data = dataService.GetData("id");
+            
+            return _next(context, services);
+        }
+    }
+
+    public interface IDataService
+    {
+        string GetData(string id);
     }
 } 
