@@ -11,8 +11,8 @@ namespace Vertical.Pipelines.Test
         [Fact]
         public async Task ScrewAround()
         {
-            var context = new TestContext();
             var services = Substitute.For<IServiceProvider>();
+            var context = new TestContext(services);
             var dataService = Substitute.For<IDataService>();
             dataService.GetData("id").Returns("the-data");
             services.GetService(typeof(IDataService)).Returns(dataService);
@@ -23,7 +23,7 @@ namespace Vertical.Pipelines.Test
 
             var pipeline = builder.Build();
 
-            await pipeline(context, services);
+            await pipeline(context);
 
             context.Count.ShouldBe(2);
             context.Data.ShouldBe("the-data");

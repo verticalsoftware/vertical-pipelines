@@ -51,5 +51,12 @@ namespace Vertical.Pipelines.Internal
                 $"Middleware type '{middlewareType}' Invoke/InvokeAsync method parameter "
                 + $"for type {byRefParameter.ParameterType}' by ref is not supported.");
         }
+
+        public static Exception ContextIsNotServiceProvider(Type middlewareType, Type contextType)
+        {
+            throw new InvalidOperationException(
+                $"Middleware type '{middlewareType}' Invoke/InvokeAsync method requires dependencies, "
+                + $"but context type '{contextType}' does not implement IServiceProvider.");
+        }
     }
 }

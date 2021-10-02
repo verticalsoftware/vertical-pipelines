@@ -20,7 +20,7 @@ namespace Vertical.Pipelines
         /// <inheritdoc />
         public PipelineDelegate<TContext> Build()
         {
-            PipelineDelegate<TContext> pipeline = (context, provider) => Task.CompletedTask;
+            PipelineDelegate<TContext> pipeline = (context) => Task.CompletedTask;
 
             for (var c = _components.Count - 1; c >= 0; c--)
             {

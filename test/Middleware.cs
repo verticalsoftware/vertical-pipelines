@@ -14,11 +14,11 @@ namespace Vertical.Pipelines
             _dataService = dataService;
         }
 
-        public Task InvokeAsync(TestContext context, IServiceProvider services)
+        public Task InvokeAsync(TestContext context)
         {
             context.Count++;
             
-            return _next(context, services);
+            return _next(context);
         }
     }
     
@@ -31,13 +31,13 @@ namespace Vertical.Pipelines
             _next = next;
         }
 
-        public Task InvokeAsync(TestContext context, IServiceProvider services, IDataService dataService)
+        public Task InvokeAsync(TestContext context, IDataService dataService)
         {
             context.Count++;
 
             context.Data = dataService.GetData("id");
             
-            return _next(context, services);
+            return _next(context);
         }
     }
 
