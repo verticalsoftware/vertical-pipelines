@@ -8,7 +8,7 @@ namespace Vertical.Pipelines
     /// </summary>
     /// <typeparam name="TContext">
     /// The type of object that carries the contextual state of the activity
-    /// to all of the middleware components in the pipeline. 
+    /// through all of the middleware components in the pipeline. 
     /// </typeparam>
     public interface IPipelineBuilder<TContext>
     {
@@ -25,7 +25,7 @@ namespace Vertical.Pipelines
         /// <summary>
         /// Builds the pipeline.
         /// </summary>
-        /// <returns>The delegate that is used to invoke the pipeline.</returns>
+        /// <returns>The delegate that is used to invoke the first task in the pipeline.</returns>
         PipelineDelegate<TContext> Build();
     }
 }

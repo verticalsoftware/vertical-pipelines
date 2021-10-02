@@ -20,12 +20,17 @@ namespace Vertical.Pipelines.Test
 
             builder.UseMiddleware(typeof(MiddlewareA), services.GetService(typeof(IDataService)));
             builder.UseMiddleware(typeof(MiddlewareB));
+            builder.Use(next => async ctx =>
+            {
+                ctx.Count++;
+                await next(ctx);
+            });
 
             var pipeline = builder.Build();
 
             await pipeline(context);
 
-            context.Count.ShouldBe(2);
+            context.Count.ShouldBe(3);
             context.Data.ShouldBe("the-data");
         }
     }
