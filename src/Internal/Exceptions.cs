@@ -26,12 +26,6 @@ namespace Vertical.Pipelines.Internal
                 + $"{returnType} instead of {typeof(Task)}");
         }
 
-        internal static Exception InvokeMethodHasNoContextParameter(MethodInfo invokeMethod, Type contextType)
-        {
-            return new InvalidOperationException(
-                $"Middleware method '{invokeMethod}' is missing context parameter for type '{contextType}'");
-        }
-
         internal static Exception NoCompatibleConstructor(Type middlewareType)
         {
             return new InvalidOperationException(
@@ -56,7 +50,7 @@ namespace Vertical.Pipelines.Internal
         {
             throw new InvalidOperationException(
                 $"Middleware type '{middlewareType}' Invoke/InvokeAsync method requires dependencies, "
-                + $"but context type '{contextType}' does not implement IServiceProvider.");
+                + $"but type '{contextType}' does not implement IServiceProvider.");
         }
     }
 }

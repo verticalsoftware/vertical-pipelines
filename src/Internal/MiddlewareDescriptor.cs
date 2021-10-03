@@ -14,40 +14,34 @@ namespace Vertical.Pipelines.Internal
     {
         private readonly Type _implementationType;
         private readonly ConstructorInfo _constructor;
-        private readonly object?[] _activationArgs;
         private readonly MethodInfo _invokeMethod;
 
-        private static readonly MethodInfo GetServiceMethod = typeof(IServiceProvider)
-            .GetMethod(nameof(IServiceProvider.GetService))!;
-        
         private const BindingFlags MethodBindingFlags = BindingFlags.Public | BindingFlags.Instance;
         private const string InvokeMethodName = "Invoke";
 
         internal MiddlewareDescriptor(
             Type implementationType,
-            object?[] activationArgs,
             ConstructorInfo constructor,
             MethodInfo invokeMethod)
         {
             _implementationType = implementationType;
             _constructor = constructor;
-            _activationArgs = activationArgs;
             _invokeMethod = invokeMethod;
         }
 
         private const string InvokeAsyncMethodName = "InvokeAsync";
 
-        internal object CreateInstance(PipelineDelegate<TContext> next)
+        internal object CreateInstance(PipelineDelegate<TContext> next, object?[] args)
         {
             var constructorArgs = new object[_constructor.GetParameters().Length];
             constructorArgs[0] = next;
 
             if (constructorArgs.Length > 1)
             {
-                Array.Copy(_activationArgs, 0, constructorArgs, 1, _activationArgs.Length);
+                Array.Copy(args, 0, constructorArgs, 1, args.Length);
             }
 
-            return Activator.CreateInstance(_implementationType, constructorArgs)!;
+            return _constructor.Invoke(constructorArgs);
         }
 
         internal Func<object, TContext, Task> CompileHandler()
@@ -57,6 +51,7 @@ namespace Vertical.Pipelines.Internal
             var parameters = _invokeMethod.GetParameters();
             var invokeArgs = new Expression[parameters.Length];
             var serviceProvider = Expression.Convert(context, typeof(IServiceProvider));
+            var getServiceMetadata = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService))!;
 
             for (var c = 0; c < parameters.Length; c++)
             {
@@ -70,7 +65,7 @@ namespace Vertical.Pipelines.Internal
 
                 var getService = Expression.Call(
                     serviceProvider, 
-                    GetServiceMethod,
+                    getServiceMetadata,
                     Expression.Constant(parameter.ParameterType));
 
                 invokeArgs[c] = Expression.Convert(getService, parameter.ParameterType);
@@ -86,7 +81,7 @@ namespace Vertical.Pipelines.Internal
                 .Compile();
         } 
 
-        internal static MiddlewareDescriptor<TContext> ForType(Type middlewareType, object?[] args)
+        internal static MiddlewareDescriptor<TContext> ForType(Type middlewareType)
         {
             // Find compatible constructor
             var constructors = middlewareType.GetConstructors();
@@ -126,6 +121,12 @@ namespace Vertical.Pipelines.Internal
             }
 
             var handler = handlers[0];
+
+            if (handler.ReturnType != typeof(Task))
+            {
+                throw Exceptions.InvokeMethodWrongReturnType(middlewareType, handler.ReturnType);
+            }
+            
             var handlerArgs = handler.GetParameters();
 
             if (handlerArgs.All(arg => arg.ParameterType != typeof(TContext)))
@@ -147,7 +148,6 @@ namespace Vertical.Pipelines.Internal
 
             return new MiddlewareDescriptor<TContext>(
                 middlewareType,
-                args,
                 constructor,
                 handler);
         }

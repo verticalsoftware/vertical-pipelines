@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Vertical.Pipelines.Internal;
 
 namespace Vertical.Pipelines
 {
@@ -11,11 +12,19 @@ namespace Vertical.Pipelines
             new List<Func<PipelineDelegate<TContext>, PipelineDelegate<TContext>>>();
 
         /// <inheritdoc />
-        public PipelineBuilder<TContext> Use(Func<PipelineDelegate<TContext>, PipelineDelegate<TContext>> middleware)
+        public IPipelineBuilder<TContext> Use(Func<PipelineDelegate<TContext>, PipelineDelegate<TContext>> middleware)
         {
             _components.Add(middleware ?? throw new ArgumentNullException(nameof(middleware)));
             return this;
         }
+
+        /// <inheritdoc />
+        public IPipelineBuilder<TContext> UseMiddleware(Type type, params object[] args) =>
+            AddMiddlewareType(type, args);
+
+        /// <inheritdoc />
+        public IPipelineBuilder<TContext> UseMiddleware<T>(params object[] args) =>
+            AddMiddlewareType(typeof(T), args);
 
         /// <inheritdoc />
         public PipelineDelegate<TContext> Build()
@@ -28,6 +37,17 @@ namespace Vertical.Pipelines
             }
 
             return pipeline;
+        }
+        
+        private IPipelineBuilder<TContext> AddMiddlewareType(Type type, object[] args)
+        {
+            return Use(next =>
+            {
+                var descriptor = MiddlewareDescriptor<TContext>.ForType(type);
+                var instance = descriptor.CreateInstance(next, args);
+
+                return context => descriptor.CompileHandler()(instance, context);
+            });
         }
     }
 }

@@ -18,9 +18,9 @@
     <PackageIcon>icon.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolsPackageFormat>snupkg</SymbolsPackageFormat>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>..\assets\vertical-software.snk</AssemblyOriginatorKeyFile>
-    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">false</PublicSign>
   </PropertyGroup>
   
   <ItemGroup>
