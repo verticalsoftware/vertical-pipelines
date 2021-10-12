@@ -50,7 +50,7 @@ namespace Vertical.Pipelines.Internal
         {
             throw new InvalidOperationException(
                 $"Middleware type '{middlewareType}' Invoke/InvokeAsync method requires dependencies, "
-                + $"but type '{contextType}' does not implement IServiceProvider.");
+                + $"but type '{contextType}' does not implement {typeof(IApplicationServices)}.");
         }
     }
 }

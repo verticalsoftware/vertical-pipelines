@@ -50,35 +50,64 @@ namespace Vertical.Pipelines.Internal
             var context = Expression.Parameter(typeof(TContext), "context");
             var parameters = _invokeMethod.GetParameters();
             var invokeArgs = new Expression[parameters.Length];
-            var serviceProvider = Expression.Convert(context, typeof(IServiceProvider));
             var getServiceMetadata = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService))!;
+            Expression body;
 
-            for (var c = 0; c < parameters.Length; c++)
+            if (parameters.Length == 1)
             {
-                var parameter = parameters[c];
+                invokeArgs[0] = context;
+                
+                body = Expression.Call(
+                    Expression.Convert(middleware, _implementationType),
+                    _invokeMethod,
+                    invokeArgs);
 
-                if (parameter.ParameterType == typeof(TContext))
-                {
-                    invokeArgs[c] = context;
-                    continue;
-                }
-
-                var getService = Expression.Call(
-                    serviceProvider, 
-                    getServiceMetadata,
-                    Expression.Constant(parameter.ParameterType));
-
-                invokeArgs[c] = Expression.Convert(getService, parameter.ParameterType);
+                return Expression
+                    .Lambda<Func<object, TContext, Task>>(body, middleware, context)
+                    .Compile();
             }
+            else
+            {
+                var appServicesImpl = Expression.Convert(context, typeof(IApplicationServices));
+                var servicesAccessor = Expression.Property(appServicesImpl, nameof(IApplicationServices.ApplicationServices));
+                var serviceProvider = Expression.Variable(typeof(IServiceProvider));
 
-            var body = Expression.Call(
-                Expression.Convert(middleware, _implementationType),
-                _invokeMethod,
-                invokeArgs);
+                for (var c = 0; c < parameters.Length; c++)
+                {
+                    var parameter = parameters[c];
 
-            return Expression
-                .Lambda<Func<object, TContext, Task>>(body, middleware, context)
-                .Compile();
+                    if (parameter.ParameterType == typeof(TContext))
+                    {
+                        invokeArgs[c] = context;
+                        continue;
+                    }
+
+                    var getService = Expression.Call(
+                        serviceProvider,
+                        getServiceMetadata,
+                        Expression.Constant(parameter.ParameterType));
+
+                    invokeArgs[c] = Expression.Convert(getService, parameter.ParameterType);
+                }
+                
+                body = Expression.Call(
+                    Expression.Convert(middleware, _implementationType),
+                    _invokeMethod,
+                    invokeArgs);
+
+                var block = Expression.Block(
+                    typeof(Task),
+                    new[] { serviceProvider },
+                    new[]
+                    {
+                        Expression.Assign(serviceProvider, servicesAccessor),
+                        body
+                    });
+
+                return Expression
+                    .Lambda<Func<object, TContext, Task>>(block, middleware, context)
+                    .Compile();
+            }
         } 
 
         internal static MiddlewareDescriptor<TContext> ForType(Type middlewareType)
@@ -141,7 +170,7 @@ namespace Vertical.Pipelines.Internal
                 throw Exceptions.ByRefParametersNotSupported(middlewareType, byRefParameter);
             }
 
-            if (handlerArgs.Length > 1 && !typeof(IServiceProvider).IsAssignableFrom(typeof(TContext)))
+            if (handlerArgs.Length > 1 && !typeof(IApplicationServices).IsAssignableFrom(typeof(TContext)))
             {
                 throw Exceptions.ContextIsNotServiceProvider(middlewareType, typeof(TContext));
             }

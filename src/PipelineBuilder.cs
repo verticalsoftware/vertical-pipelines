@@ -19,11 +19,11 @@ namespace Vertical.Pipelines
         }
 
         /// <inheritdoc />
-        public IPipelineBuilder<TContext> UseMiddleware(Type type, params object[] args) =>
+        public IPipelineBuilder<TContext> UseMiddleware(Type type, params object?[] args) =>
             AddMiddlewareType(type, args);
 
         /// <inheritdoc />
-        public IPipelineBuilder<TContext> UseMiddleware<T>(params object[] args) =>
+        public IPipelineBuilder<TContext> UseMiddleware<T>(params object?[] args) =>
             AddMiddlewareType(typeof(T), args);
 
         /// <inheritdoc />
@@ -39,7 +39,7 @@ namespace Vertical.Pipelines
             return pipeline;
         }
         
-        private IPipelineBuilder<TContext> AddMiddlewareType(Type type, object[] args)
+        private IPipelineBuilder<TContext> AddMiddlewareType(Type type, object?[] args)
         {
             return Use(next =>
             {
