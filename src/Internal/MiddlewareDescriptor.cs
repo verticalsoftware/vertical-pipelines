@@ -33,14 +33,28 @@ namespace Vertical.Pipelines.Internal
 
         internal object CreateInstance(PipelineDelegate<TContext> next, object?[] args)
         {
-            var constructorArgs = new object[_constructor.GetParameters().Length];
+            var parameters = _constructor.GetParameters();
+            var constructorArgs = new object[parameters.Length];
             constructorArgs[0] = next;
 
-            if (constructorArgs.Length > 1)
+            switch (args.Length)
             {
-                Array.Copy(args, 0, constructorArgs, 1, args.Length);
+                case 0:
+                    break;
+                
+                case 1 when args[0] is IServiceProvider serviceProvider:
+                    // Map parameter values using service provider
+                    for (var c = 1; c < parameters.Length; c++)
+                    {
+                        constructorArgs[c] = serviceProvider.GetService(parameters[c].ParameterType)!;
+                    }
+                    break;
+                
+                default:
+                    Array.Copy(args, 0, constructorArgs, 1, args.Length);
+                    break;
             }
-
+            
             return _constructor.Invoke(constructorArgs);
         }
 
@@ -66,48 +80,43 @@ namespace Vertical.Pipelines.Internal
                     .Lambda<Func<object, TContext, Task>>(body, middleware, context)
                     .Compile();
             }
-            else
+
+            var appServicesImpl = Expression.Convert(context, typeof(IApplicationServices));
+            var servicesAccessor = Expression.Property(appServicesImpl, nameof(IApplicationServices.ApplicationServices));
+            var serviceProvider = Expression.Variable(typeof(IServiceProvider));
+
+            for (var c = 0; c < parameters.Length; c++)
             {
-                var appServicesImpl = Expression.Convert(context, typeof(IApplicationServices));
-                var servicesAccessor = Expression.Property(appServicesImpl, nameof(IApplicationServices.ApplicationServices));
-                var serviceProvider = Expression.Variable(typeof(IServiceProvider));
+                var parameter = parameters[c];
 
-                for (var c = 0; c < parameters.Length; c++)
+                if (parameter.ParameterType == typeof(TContext))
                 {
-                    var parameter = parameters[c];
-
-                    if (parameter.ParameterType == typeof(TContext))
-                    {
-                        invokeArgs[c] = context;
-                        continue;
-                    }
-
-                    var getService = Expression.Call(
-                        serviceProvider,
-                        getServiceMetadata,
-                        Expression.Constant(parameter.ParameterType));
-
-                    invokeArgs[c] = Expression.Convert(getService, parameter.ParameterType);
+                    invokeArgs[c] = context;
+                    continue;
                 }
-                
-                body = Expression.Call(
-                    Expression.Convert(middleware, _implementationType),
-                    _invokeMethod,
-                    invokeArgs);
 
-                var block = Expression.Block(
-                    typeof(Task),
-                    new[] { serviceProvider },
-                    new[]
-                    {
-                        Expression.Assign(serviceProvider, servicesAccessor),
-                        body
-                    });
+                var getService = Expression.Call(
+                    serviceProvider,
+                    getServiceMetadata,
+                    Expression.Constant(parameter.ParameterType));
 
-                return Expression
-                    .Lambda<Func<object, TContext, Task>>(block, middleware, context)
-                    .Compile();
+                invokeArgs[c] = Expression.Convert(getService, parameter.ParameterType);
             }
+                
+            body = Expression.Call(
+                Expression.Convert(middleware, _implementationType),
+                _invokeMethod,
+                invokeArgs);
+
+            var block = Expression.Block(
+                typeof(Task),
+                new[] { serviceProvider }, 
+                Expression.Assign(serviceProvider, servicesAccessor), 
+                body);
+
+            return Expression
+                .Lambda<Func<object, TContext, Task>>(block, middleware, context)
+                .Compile();
         } 
 
         internal static MiddlewareDescriptor<TContext> ForType(Type middlewareType)

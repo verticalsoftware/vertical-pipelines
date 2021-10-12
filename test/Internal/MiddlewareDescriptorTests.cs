@@ -142,6 +142,19 @@ namespace Vertical.Pipelines.Test.Internal
             ((MiddlewareWithLifetimeDependency) instance).Next.ShouldBe(next);
         }
 
+        [Fact]
+        public void CreateInstanceInjectsServiceProviderDependencies()
+        {
+            PipelineDelegate<Request> next = _ => Task.CompletedTask;;
+            var serviceProvider = Substitute.For<IServiceProvider>();
+            var service = Substitute.For<IService>();
+            serviceProvider.GetService(typeof(IService)).Returns(service);
+            var instance = (MiddlewareWithLifetimeDependency) 
+                MiddlewareDescriptor<Request>.ForType(typeof(MiddlewareWithLifetimeDependency))
+                .CreateInstance(next, new object?[] { serviceProvider });
+            instance.Service.ShouldBe(service);
+        }
+
         public class MiddlewareWithScopeDependencies
         {
             private readonly PipelineDelegate<RequestWithServiceProvider> _next;

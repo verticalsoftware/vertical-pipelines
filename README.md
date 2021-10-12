@@ -91,7 +91,7 @@ Console.WriteLine(request.Value);
 // Output: 1010
 ```
 
-Notice the body of the handling lambda expressions. The `next` parameter that is passed to the lambda is a function that passes control to the next middleware in the pipeline. Here are some behaviors that a middleware can exhibit:
+Notice the body of the handling lambda expressions. The `next` parameter that is passed to the lambda is a function that passes control to the next middleware in the pipeline. Here are some behavior variations that a middleware can exhibit:
 
 1. Perform it's work then invoke `next` to pass control to the rest of the pipeline.
 2. Invoke `next` to pass control to the rest of the pipeline first, then perform it's own work.
@@ -154,7 +154,7 @@ Defining middleware in class implementations also provides the following benefit
 1. Dependencies can be introduced into the middleware components at startup (once) via the constructor.
 2. Dependencies can be provided to the `Invoke`/`InvokeAsync` (per activity cycle).
 
-Providing dependencies to middleware components at startup involves (1) adding to the constructor signature, and (2) providing the services when building the pipeline.
+Providing dependencies to middleware components at startup involves (1) adding to the constructor signature of the middleware, and (2) providing the services when building the pipeline.
 
 ```csharp
 // Extend constructors with service dependencies that will be provided once 
@@ -174,9 +174,14 @@ var builder = new PipelineBuilder<MyRequest>();
 builder.UseMiddleware<MyMiddleware>(loggerFactory.CreateLogger<MyMiddleware>());
 ```
 
+> 📝 Note
+>
+> The `UseMiddleware` overloads also have versions that accept `IServiceProvider` which resolve dependencies automatically.
+
+
 #### Per-invocation dependencies
 
-Providing dependencies to invocations of the middleware is more nuanced because `PipelineDelegate<TContext>` does not have the means to pass a service provider directly, therefore one has to be available in the context. This is accomplished using the `IApplicationServices` interface. 
+Providing dependencies to invocations of `Invoke`/`InvokeAsync` requires more consideration because `PipelineDelegate<TContext>` does not have the means to pass a service provider directly, therefore one has to be available in the context. This is accomplished using the `IApplicationServices` interface. 
 
 > 📝 Note
 > 
@@ -230,4 +235,4 @@ await pipeline(new MyRequest(serviceProvider));
 
 ## Issues or requests
 
-What a tiny library... making this README took more effort than the code. What else could we want this to do? I'm sure you can think of something, in which case, create an issue [here](https://github.com/verticalsoftware/vertical-pipelines/issues).
+Create an issue [here](https://github.com/verticalsoftware/vertical-pipelines/issues).

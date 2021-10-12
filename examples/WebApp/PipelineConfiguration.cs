@@ -12,10 +12,10 @@ namespace Vertical.Examples.WebApp
             services.AddSingleton(provider =>
             {
                 var pipeline = new PipelineBuilder<AddCustomerRequest>()
-                    .UseMiddleware<OperationLoggingTask>(provider.GetService<ILogger<OperationLoggingTask>>())
-                    .UseMiddleware<ValidateCustomerTask>(provider.GetService<ILogger<ValidateCustomerTask>>())
-                    .UseMiddleware<SaveCustomerRecordTask>(provider.GetService<ILogger<SaveCustomerRecordTask>>())
-                    .UseMiddleware<SendWelcomeEmailTask>(provider.GetService<ILogger<INotificationService>>())
+                    .UseMiddleware<OperationLoggingTask>(provider)
+                    .UseMiddleware<ValidateCustomerTask>(provider)
+                    .UseMiddleware<SaveCustomerRecordTask>(provider)
+                    .UseMiddleware<SendWelcomeEmailTask>(provider)
                     .Build();
 
                 return pipeline;

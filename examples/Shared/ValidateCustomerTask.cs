@@ -29,6 +29,8 @@ namespace Vertical.Examples.Shared
                 throw new ApplicationException("Last name required.");
             }
 
+            _logger.LogInformation("Request validation successful");
+
             return _next(request);
         }
     }

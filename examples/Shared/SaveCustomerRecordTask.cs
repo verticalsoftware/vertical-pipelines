@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 using Vertical.Pipelines;
 
 namespace Vertical.Examples.Shared

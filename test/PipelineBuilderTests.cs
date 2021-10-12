@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NSubstitute;
 using Shouldly;
 using Xunit;
 
@@ -72,6 +73,24 @@ namespace Vertical.Pipelines.Test
                 return Task.CompletedTask;
             }
         }
+
+        public class ServiceDependencyMiddleware
+        {
+            private readonly PipelineDelegate<Request> _next;
+            private readonly IService _service;
+
+            public ServiceDependencyMiddleware(PipelineDelegate<Request> next, IService service)
+            {
+                _next = next;
+                _service = service;
+            }
+
+            public Task InvokeAsync(Request request)
+            {
+                _service.Call();
+                return Task.CompletedTask;
+            }
+        }
         
         [Fact]
         public async Task UseRegistersMiddleware()
@@ -118,14 +137,44 @@ namespace Vertical.Pipelines.Test
         public async Task UseMiddlewarePassesArgs()
         {
             var invoked = false;
-            Action invokeMe = () => invoked = true;
+            void InvokeMe() => invoked = true;
             var pipeline = new PipelineBuilder<Request>()
-                .UseMiddleware(typeof(MiddlewareWithParameter), invokeMe)
+                .UseMiddleware(typeof(MiddlewareWithParameter), (Action)InvokeMe)
                 .Build();
 
             await pipeline(_request);
 
             invoked.ShouldBe(true);
+        }
+
+        [Fact]
+        public async Task UseMiddlewareInvokesServiceProvider()
+        {
+            var service = Substitute.For<IService>();
+            var provider = Substitute.For<IServiceProvider>();
+            provider.GetService(typeof(IService)).Returns(service);
+            provider.GetService(typeof(Action)).Returns(new Action(() => {}));
+            var pipeline = new PipelineBuilder<Request>()
+                .UseMiddleware(typeof(ServiceDependencyMiddleware), provider)
+                .Build();
+
+            await pipeline(_request);
+            service.Received().Call();
+        }
+        
+        [Fact]
+        public async Task UseMiddlewareOfTInvokesServiceProvider()
+        {
+            var service = Substitute.For<IService>();
+            var provider = Substitute.For<IServiceProvider>();
+            provider.GetService(typeof(IService)).Returns(service);
+            provider.GetService(typeof(Action)).Returns(new Action(() => {}));
+            var pipeline = new PipelineBuilder<Request>()
+                .UseMiddleware<ServiceDependencyMiddleware>(provider)
+                .Build();
+
+            await pipeline(_request);
+            service.Received().Call();
         }
 
         [Fact]

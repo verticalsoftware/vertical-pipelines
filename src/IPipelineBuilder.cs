@@ -29,7 +29,16 @@ namespace Vertical.Pipelines
         /// <param name="type">The middleware implementation type.</param>
         /// <param name="args">Arguments to pass to the types constructor during activation.</param>
         /// <returns>A reference to the builder instance.</returns>
-        IPipelineBuilder<TContext> UseMiddleware(Type type, params object?[] args);
+        IPipelineBuilder<TContext> UseMiddleware(Type type, object?[]? args = null);
+        
+        /// <summary>
+        /// Registers a middleware component that uses an application defined class
+        /// implementation.
+        /// </summary>
+        /// <param name="type">The middleware implementation type.</param>
+        /// <param name="serviceProvider">A provider for services available during middleware construction.</param>
+        /// <returns>A reference to the builder instance.</returns>
+        IPipelineBuilder<TContext> UseMiddleware(Type type, IServiceProvider serviceProvider);
 
         /// <summary>
         /// Registers a middleware component that uses an application defined class
@@ -38,7 +47,16 @@ namespace Vertical.Pipelines
         /// <typeparam name="T">The type of class that implements the middleware behavior.</typeparam>
         /// <param name="args">Arguments to pass to the types constructor during activation.</param>
         /// <returns>A reference to the builder instance.</returns>
-        IPipelineBuilder<TContext> UseMiddleware<T>(params object?[] args);
+        IPipelineBuilder<TContext> UseMiddleware<T>(object?[]? args = null);
+        
+        /// <summary>
+        /// Registers a middleware component that uses an application defined class
+        /// implementation.
+        /// </summary>
+        /// <param name="serviceProvider">A provider for services available during middleware construction.</param>
+        /// <typeparam name="T">The type of class that implements the middleware behavior.</typeparam>
+        /// <returns>A reference to the builder instance.</returns>
+        IPipelineBuilder<TContext> UseMiddleware<T>(IServiceProvider serviceProvider);
 
         /// <summary>
         /// Builds the pipeline.

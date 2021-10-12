@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vertical.Examples.Shared;
 
 namespace Vertical.Examples.WebApp
 {
@@ -7,14 +10,38 @@ namespace Vertical.Examples.WebApp
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+            var host = Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    webBuilder
+                        .ConfigureServices(services =>
+                        {
+                            services.ConfigureCustomPipeline();
+                            services.AddSharedServices();
+                            services.AddSwaggerGen();
+                            services.AddMvc();
+                        })
+                        .Configure(app =>
+                        {
+                            app.UseSwagger();
+
+                            app.UseSwaggerUI(cfg =>
+                            {
+                                cfg.SwaggerEndpoint("/swagger/v1/swagger.json", "Example API");
+                                cfg.RoutePrefix = string.Empty;
+                            });
+            
+                            app.UseRouting();
+
+                            app.UseEndpoints(endpoints =>
+                            {
+                                endpoints.MapControllers();
+                            });
+                        });
+                })
+                .Build();
+
+            host.Run();
+        }
     }
 }

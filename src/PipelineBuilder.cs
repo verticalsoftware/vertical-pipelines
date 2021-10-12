@@ -19,12 +19,20 @@ namespace Vertical.Pipelines
         }
 
         /// <inheritdoc />
-        public IPipelineBuilder<TContext> UseMiddleware(Type type, params object?[] args) =>
-            AddMiddlewareType(type, args);
+        public IPipelineBuilder<TContext> UseMiddleware(Type type, params object?[]? args) =>
+            AddMiddlewareType(type, args ?? Array.Empty<object>());
 
         /// <inheritdoc />
-        public IPipelineBuilder<TContext> UseMiddleware<T>(params object?[] args) =>
-            AddMiddlewareType(typeof(T), args);
+        public IPipelineBuilder<TContext> UseMiddleware(Type type, IServiceProvider serviceProvider) =>
+            AddMiddlewareType(type, new object?[] { serviceProvider });
+
+        /// <inheritdoc />
+        public IPipelineBuilder<TContext> UseMiddleware<T>(params object?[]? args) =>
+            AddMiddlewareType(typeof(T), args ?? Array.Empty<object>());
+
+        /// <inheritdoc />
+        public IPipelineBuilder<TContext> UseMiddleware<T>(IServiceProvider serviceProvider) =>
+            AddMiddlewareType(typeof(T), new object?[] { serviceProvider });
 
         /// <inheritdoc />
         public PipelineDelegate<TContext> Build()

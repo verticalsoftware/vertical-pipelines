@@ -7,7 +7,7 @@ namespace Vertical.Examples.Shared
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddSharedServices(this IServiceCollection services)
+        public static IServiceCollection AddSharedServices(this IServiceCollection services)
         {
             var repository = Substitute.For<IRepository>();
             repository.SaveCustomerAsync(Arg.Any<Customer>()).Returns(Task.FromResult(Guid.NewGuid()));
@@ -15,6 +15,8 @@ namespace Vertical.Examples.Shared
             services.AddSingleton(repository);
             services.AddSingleton(Substitute.For<INotificationService>());
             services.AddLogging();
+
+            return services;
         }
     }
 }
