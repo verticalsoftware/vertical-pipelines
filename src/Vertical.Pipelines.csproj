@@ -1,25 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
+    <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <Title>vertical-pipelines</Title>
     <Description>Overly simple task pipeline similar to the aspnetcore middleware.</Description>
     <Authors>Vertical Software Contributors</Authors>
-    <VersionPrefix>1.2.0</VersionPrefix>
+    <VersionPrefix>2.0.0</VersionPrefix>
     <PackageId>vertical-pipelines</PackageId>
     <PackageTags>infrastructure;middleware;utilities;framework</PackageTags>
     <PackageProjectUrl>https://github.com/verticalsoftware/vertical-pipelines</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <PackageIcon>icon.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolsPackageFormat>snupkg</SymbolsPackageFormat>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>..\assets\vertical-software.snk</AssemblyOriginatorKeyFile>
-    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">false</PublicSign>
   </PropertyGroup>
   
   <ItemGroup>
