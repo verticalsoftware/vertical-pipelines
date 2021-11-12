@@ -1,37 +1,37 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Vertical.Pipelines;
 
 namespace Vertical.Examples.Shared
 {
-    public class ValidateCustomerTask
+    public class ValidateCustomerTask : IPipelineMiddleware<AddCustomerRequest>
     {
-        private readonly PipelineDelegate<AddCustomerRequest> _next;
         private readonly ILogger<ValidateCustomerTask> _logger;
 
-        public ValidateCustomerTask(
-            PipelineDelegate<AddCustomerRequest> next,
-            ILogger<ValidateCustomerTask> logger)
+        public ValidateCustomerTask(ILogger<ValidateCustomerTask> logger)
         {
-            _next = next;
             _logger = logger;
         }
 
-        public Task InvokeAsync(AddCustomerRequest request)
+        /// <inheritdoc />
+        public Task InvokeAsync(AddCustomerRequest context, 
+            PipelineDelegate<AddCustomerRequest> next, 
+            CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.Record.FirstName))
+            if (string.IsNullOrWhiteSpace(context.Record.FirstName))
             {
                 throw new ApplicationException("First name required.");
             }
-            if (string.IsNullOrWhiteSpace(request.Record.LastName))
+            if (string.IsNullOrWhiteSpace(context.Record.LastName))
             {
                 throw new ApplicationException("Last name required.");
             }
 
             _logger.LogInformation("Request validation successful");
 
-            return _next(request);
+            return next(context, cancellationToken);
         }
     }
 }
