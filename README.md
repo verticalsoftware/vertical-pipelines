@@ -118,7 +118,7 @@ Notice the different possible behavioral patterns. Middleware can...
 
 ## Dependency Injection
 
-The simple design allows for effective integration with dependency injection. Consider the following setup that uses [Microsoft Dependency Injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-6.0):
+The simple design allows for simple integration with dependency injection. Consider the following setup that uses [Microsoft Dependency Injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-6.0):
 
 ```csharp
 var services = new ServiceCollection();
