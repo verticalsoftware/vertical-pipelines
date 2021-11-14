@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,21 +13,24 @@ namespace ConsoleApp
         private static async Task Main(string[] args)
         {
             var services = new ServiceCollection()
+                // Services
                 .AddSharedServices()
                 .AddLogging(builder => builder
                     .AddConsole()
                     .SetMinimumLevel(LogLevel.Information))
+
+                // Middleware pipeline services
+                .AddSingleton<IPipelineMiddleware<AddCustomerRequest>, OperationLoggingTask>()
+                .AddSingleton<IPipelineMiddleware<AddCustomerRequest>, ValidateCustomerTask>()
+                .AddSingleton<IPipelineMiddleware<AddCustomerRequest>, SaveCustomerRecordTask>()
+                .AddSingleton<IPipelineMiddleware<AddCustomerRequest>, SendWelcomeEmailTask>()
+                .AddSingleton<IPipelineFactory<AddCustomerRequest>, PipelineFactory<AddCustomerRequest>>()
+                .AddSingleton(sp => sp.GetRequiredService<IPipelineFactory<AddCustomerRequest>>().CreatePipeline())
                 .BuildServiceProvider();
 
-            var pipeline = new PipelineBuilder<AddCustomerRequest>()
-                .UseMiddleware<OperationLoggingTask>(services)
-                .UseMiddleware<ValidateCustomerTask>(services)
-                .UseMiddleware<SaveCustomerRecordTask>(services)
-                .UseMiddleware<SendWelcomeEmailTask>(services)
-                .Build();
-
             using var requestScope = services.CreateScope();
-            var request = new AddCustomerRequest(requestScope.ServiceProvider)
+            
+            var request = new AddCustomerRequest
             {
                 Record = new Customer
                 {
@@ -37,7 +41,9 @@ namespace ConsoleApp
                 }
             };
 
-            await pipeline(request);
+            var pipeline = requestScope.ServiceProvider.GetRequiredService<PipelineDelegate<AddCustomerRequest>>();
+            
+            await pipeline(request, CancellationToken.None);
 
             await Task.Delay(500);
 

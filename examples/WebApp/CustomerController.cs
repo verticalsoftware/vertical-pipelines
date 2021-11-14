@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Vertical.Examples.Shared;
@@ -10,23 +11,21 @@ namespace Vertical.Examples.WebApp
     public class CustomerController : ControllerBase
     {
         private readonly PipelineDelegate<AddCustomerRequest> _pipeline;
-        private readonly IServiceProvider _serviceProvider;
 
-        public CustomerController(PipelineDelegate<AddCustomerRequest> pipeline, IServiceProvider serviceProvider)
+        public CustomerController(PipelineDelegate<AddCustomerRequest> pipeline)
         {
             _pipeline = pipeline;
-            _serviceProvider = serviceProvider;
         }
         
         [HttpPost, Route("/api/customers")]
         public async Task<ActionResult> Post([FromBody] AddCustomerRequestModel model)
         {
-            var request = new AddCustomerRequest(_serviceProvider)
+            var request = new AddCustomerRequest
             {
                 Record = model.Record
             };
                 
-            await _pipeline(request);
+            await _pipeline(request, CancellationToken.None);
 
             return Created($"/api/customers/{request.NewId}", request);
         }

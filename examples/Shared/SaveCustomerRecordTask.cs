@@ -1,31 +1,33 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Vertical.Pipelines;
 
 namespace Vertical.Examples.Shared
 {
-    public class SaveCustomerRecordTask
+    public class SaveCustomerRecordTask : IPipelineMiddleware<AddCustomerRequest>
     {
-        private readonly PipelineDelegate<AddCustomerRequest> _next;
         private readonly ILogger<SaveCustomerRecordTask> _logger;
+        private readonly IRepository _repository;
 
-        public SaveCustomerRecordTask(
-            PipelineDelegate<AddCustomerRequest> next,
-            ILogger<SaveCustomerRecordTask> logger)
+        public SaveCustomerRecordTask(ILogger<SaveCustomerRecordTask> logger, IRepository repository)
         {
-            _next = next;
             _logger = logger;
+            _repository = repository;
         }
 
-        public async Task InvokeAsync(AddCustomerRequest request, IRepository repository)
+        /// <inheritdoc />
+        public async Task InvokeAsync(AddCustomerRequest context, 
+            PipelineDelegate<AddCustomerRequest> next, 
+            CancellationToken cancellationToken)
         {
-            var assignedId = await repository.SaveCustomerAsync(request.Record);
+            var assignedId = await _repository.SaveCustomerAsync(context.Record);
 
-            request.NewId = assignedId;
+            context.NewId = assignedId;
             
             _logger.LogInformation("Saved new customer record");
 
-            await _next(request);
+            await next(context, cancellationToken);
         }
     }
 }

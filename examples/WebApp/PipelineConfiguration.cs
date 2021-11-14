@@ -9,17 +9,13 @@ namespace Vertical.Examples.WebApp
     {
         public static void ConfigureCustomPipeline(this IServiceCollection services)
         {
-            services.AddSingleton(provider =>
-            {
-                var pipeline = new PipelineBuilder<AddCustomerRequest>()
-                    .UseMiddleware<OperationLoggingTask>(provider)
-                    .UseMiddleware<ValidateCustomerTask>(provider)
-                    .UseMiddleware<SaveCustomerRecordTask>(provider)
-                    .UseMiddleware<SendWelcomeEmailTask>(provider)
-                    .Build();
-
-                return pipeline;
-            });
+            services
+                .AddSingleton<IPipelineMiddleware<AddCustomerRequest>, OperationLoggingTask>()
+                .AddSingleton<IPipelineMiddleware<AddCustomerRequest>, ValidateCustomerTask>()
+                .AddSingleton<IPipelineMiddleware<AddCustomerRequest>, SaveCustomerRecordTask>()
+                .AddSingleton<IPipelineMiddleware<AddCustomerRequest>, SendWelcomeEmailTask>()
+                .AddSingleton<IPipelineFactory<AddCustomerRequest>, PipelineFactory<AddCustomerRequest>>()
+                .AddSingleton(sp => sp.GetRequiredService<IPipelineFactory<AddCustomerRequest>>().CreatePipeline());
         }
     }
 }
