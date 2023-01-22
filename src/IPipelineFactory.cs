@@ -11,5 +11,10 @@ namespace Vertical.Pipelines
         /// </summary>
         /// <returns><see cref="PipelineDelegate{TContext}"/></returns>
         PipelineDelegate<TContext> CreatePipeline();
+        
+        /// <summary>
+        /// Gets the total number of tasks in the pipeline.
+        /// </summary>
+        int TaskCount { get; }
     }
 }
