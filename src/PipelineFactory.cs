@@ -11,7 +11,7 @@ namespace Vertical.Pipelines
     /// <typeparam name="TContext">Context type begin passed throughout the pipeline.</typeparam>
     public class PipelineFactory<TContext> : IPipelineFactory<TContext> where TContext : class
     {
-        private readonly IEnumerable<IPipelineMiddleware<TContext>> _middleware;
+        private readonly IPipelineMiddleware<TContext>[] _middleware;
 
         /// <summary>
         /// Creates a new instance of this type.
@@ -21,7 +21,7 @@ namespace Vertical.Pipelines
         /// </param>
         public PipelineFactory(IEnumerable<IPipelineMiddleware<TContext>> middleware)
         {
-            _middleware = middleware;
+            _middleware = middleware.Reverse().ToArray();
         }
         
         /// <inheritdoc />
@@ -29,7 +29,7 @@ namespace Vertical.Pipelines
         {
             var next = new PipelineDelegate<TContext>((_, __) => Task.CompletedTask);
 
-            foreach (var component in _middleware.Reverse())
+            foreach (var component in _middleware)
             {
                 var instanceNext = next;
                 
@@ -38,5 +38,8 @@ namespace Vertical.Pipelines
 
             return next;
         }
+
+        /// <inheritdoc />
+        public int TaskCount => _middleware.Length;
     }
 }

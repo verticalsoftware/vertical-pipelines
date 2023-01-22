@@ -144,6 +144,10 @@ await pipelineDelegate(context, cancellationToken);
 
 If any middleware requires scoped dependencies, register those components and the pipeline factory as scoped.
 
+> 🔗 Note
+>
+> Use our [dependency injection](https://github.com/verticalsoftware/vertical-pipelines-dependencyinjection) package for easy configuration with Microsoft.Extensions.DependencyInjection.
+
 ## Issues or requests
 
 Create an issue [here](https://github.com/verticalsoftware/vertical-pipelines/issues).
