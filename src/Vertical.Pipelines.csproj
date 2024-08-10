@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <Title>vertical-pipelines</Title>
     <Description>Overly simple task pipeline similar to the aspnetcore middleware.</Description>
     <Authors>Vertical Software Contributors</Authors>
-    <VersionPrefix>3.1.1</VersionPrefix>
+    <VersionPrefix>3.2</VersionPrefix>
     <PackageId>vertical-pipelines</PackageId>
     <PackageTags>infrastructure;middleware;utilities;framework</PackageTags>
     <PackageProjectUrl>https://github.com/verticalsoftware/vertical-pipelines</PackageProjectUrl>
